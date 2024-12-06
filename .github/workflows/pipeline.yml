@@ -1,34 +1,22 @@
-name: Terraform Apply
-
-on:
-  push:
-    branches:
-      - main  # This runs the action when changes are pushed to the main branch
+name: Run Azure Login with the Service Principal secret
+on: [push]
 
 jobs:
-  terraform:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-    # Checkout the code from the repository
-    - name: Checkout Code
-      uses: actions/checkout@v2
-
-    # Set up Terraform
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.5.0
-
-    # Configure Azure Credentials
-    - name: 'Set up Azure Credentials'
-      uses: azure/login@v1
+    - name: Azure Login action
+      uses: azure/login@v2
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
-    - name: Create Resource Group
-        run:
-          az group create --name myResourceGroup --location eastus
-        env:
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: true
+    
+    - name: Azure CLI script
+      uses: azure/cli@v2
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az group create --location "eastus" --resource-group "rahul-git-tff"
+          # You can write your Azure CLI inline scripts here.
 
     
